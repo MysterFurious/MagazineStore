@@ -31,11 +31,10 @@ namespace MagazineStore.Helpers
                 this.GetToken();
 
                 Parallel.Invoke(
-                    () => this.GetCategories(),
+                    () => this.GetCategoriesAndMagazines(),
                     () => this.GetSubscribers()
                 );
-
-                this.GetMagazines();
+                                
                 this.GenerateAnswer();
                 return this.GetResults();
             }
@@ -49,20 +48,18 @@ namespace MagazineStore.Helpers
             this.Token = response.token;
         }
 
+        private void GetCategoriesAndMagazines()
+        {
+            this.GetCategories();
+            this.GetMagazines();
+        }
+
         private void GetCategories()
         {
             string endpoint = String.Format("api/categories/{0}", this.Token);
             CategoryResponse response = JsonConvert.DeserializeObject<CategoryResponse>(this.ExecuteGet(endpoint));
             this.ValidateResponse(response, endpoint);
             this.Categories = response.data;
-        }
-
-        private void GetSubscribers()
-        {
-            string endpoint = String.Format("api/subscribers/{0}", this.Token);
-            SubscriberResponse response = JsonConvert.DeserializeObject<SubscriberResponse>(this.ExecuteGet(endpoint));
-            this.ValidateResponse(response, endpoint);
-            this.Subscribers = response.data;
         }
 
         private void GetMagazines()
@@ -77,6 +74,14 @@ namespace MagazineStore.Helpers
             MagazineResponse response = JsonConvert.DeserializeObject<MagazineResponse>(this.ExecuteGet(endpoint));
             this.ValidateResponse(response, endpoint);
             this.Magazines.AddRange(response.data);
+        }
+
+        private void GetSubscribers()
+        {
+            string endpoint = String.Format("api/subscribers/{0}", this.Token);
+            SubscriberResponse response = JsonConvert.DeserializeObject<SubscriberResponse>(this.ExecuteGet(endpoint));
+            this.ValidateResponse(response, endpoint);
+            this.Subscribers = response.data;
         }
 
         private void GenerateAnswer()
